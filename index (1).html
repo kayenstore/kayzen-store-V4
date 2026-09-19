@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAYZEN TWEAK</title>
+    <link rel="icon" type="image/png" href="https://kayzenstorev2.kayzenstore.workers.dev/Red_Black_and_White_Playful_Gamer_Logo.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        :root {
+            --red-primary: #ff003c;
+            --red-glow: #ff335c;
+            --purple-accent: #a855f7;
+            --bg-dark: #050505;
+            --card-bg: #0d0d0d;
+            --text-light: #f5f5f7;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(to right, rgba(255,0,60,0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,0,60,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Welcome Overlay */
+        #welcome-overlay {
+            position: fixed; inset: 0; background: #000;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; animation: fadeOutOverlay 1s ease 2.2s forwards;
+        }
+        .welcome-text {
+            font-size: 3rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 4px; color: #fff;
+            text-shadow: 0 0 10px #fff, 0 0 20px var(--red-primary), 0 0 40px var(--red-primary);
+            opacity: 0; transform: translateY(20px);
+            animation: fadeInUp 1s ease 0.3s forwards;
+        }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutOverlay { to { opacity: 0; visibility: hidden; } }
+
+        /* Sidebar */
+        .sidebar-left {
+            position: fixed; left: 0; top: 0; width: 320px; height: 100vh;
+            background: #09090c; border-right: 1px solid rgba(255,0,60,0.2);
+            padding: 2rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.7); z-index: 100; overflow-y: auto;
+        }
+        .sidebar-title {
+            font-size: 1.2rem; text-transform: uppercase; color: #fff;
+            letter-spacing: 2px; border-bottom: 1px solid rgba(255,0,60,0.3);
+            padding-bottom: 0.8rem; text-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+        .nav-list { display: flex; flex-direction: column; gap: 1rem; list-style: none; }
+        .nav-item-btn {
+            width: 100%; padding: 1rem; background: #121216;
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+            color: #fff; text-align: left; font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-item-btn:hover, .nav-item-btn.active {
+            border-color: var(--red-primary); background: rgba(255,0,60,0.1);
+            color: var(--red-primary); box-shadow: 0 0 12px rgba(255,0,60,0.25);
+        }
+        .nav-item-btn.discount-nav-btn {
+            border-color: rgba(255,0,60,0.4);
+            background: linear-gradient(90deg, rgba(255,0,60,0.15) 0%, transparent 100%);
+        }
+        .nav-item-btn.giveaways-nav-btn {
+            border-color: rgba(168,85,247,0.4);
+            background: linear-gradient(90deg, rgba(168,85,247,0.15) 0%, transparent 100%);
+        }
+
+        /* Main content */
+        main { flex: 1; padding: 3rem; margin-left: 320px; transition: all 0.3s ease; }
+        header { margin-bottom: 2.5rem; }
+        h1.brand-title {
+            font-size: 2.8rem; color: #fff; text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 0 0 12px rgba(255,255,255,0.6), 0 0 25px var(--red-primary);
+            cursor: pointer; user-select: none;
+        }
+        .category-view { display: none; animation: fadeInContent 0.4s ease forwards; }
+        .category-view.active { display: block; }
+        @keyframes fadeInContent {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section-header {
+            font-size: 1.8rem; color: var(--red-primary); margin-bottom: 2rem;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            text-shadow: 0 0 10px rgba(255,0,60,0.4);
+            border-bottom: 1px solid rgba(255,0,60,0.2); padding-bottom: 0.5rem;
+        }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 2rem 1.5rem;
+            display: flex; flex-direction: column; justify-content: space-between;
+            position: relative; transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .card:hover {
+            transform: translateY(-5px); border-color: var(--red-primary);
+            box-shadow: 0 0 20px rgba(255,0,60,0.3);
+        }
+        .card.featured {
+            border-color: var(--red-primary);
+            background: linear-gradient(180deg, #1c050a 0%, var(--card-bg) 100%);
+            box-shadow: 0 0 15px rgba(255,0,60,0.2);
+        }
+        .card.giveaway-card {
+            border-color: var(--purple-accent);
+            background: linear-gradient(180deg, #160826 0%, var(--card-bg) 100%);
+        }
+        .card.giveaway-card:hover {
+            border-color: var(--purple-accent);
+            box-shadow: 0 0 20px rgba(168,85,247,0.4);
+        }
+        .badge-recommended, .badge-giveaway {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            color: #fff; font-weight: bold; font-size: 0.75rem;
+            padding: 4px 12px; border-radius: 20px; text-transform: uppercase;
+        }
+        .badge-recommended { background: var(--red-primary); box-shadow: 0 0 10px var(--red-primary); }
+        .badge-giveaway { background: var(--purple-accent); box-shadow: 0 0 10px var(--purple-accent); }
+        .card h3 { font-size: 1.3rem; color: #fff; margin-bottom: 0.8rem; }
+        .price {
+            font-size: 2rem; font-weight: 800; color: var(--red-primary);
+            margin-bottom: 1.2rem; text-shadow: 0 0 8px rgba(255,0,60,0.4);
+        }
+        .price-discounted { color: #00ff88; }
+        .old-price { text-decoration: line-through; color: #777; font-size: 1.2rem; margin-right: 8px; }
+        .features-list { list-style: none; margin-bottom: 1.8rem; }
+        .features-list li {
+            color: #ccc; font-size: 0.9rem; padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .btn-action {
+            width: 100%; padding: 0.8rem; background: transparent;
+            color: var(--red-primary); border: 2px solid var(--red-primary);
+            border-radius: 8px; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease;
+            text-align: center; text-decoration: none; display: inline-block;
+        }
+        .btn-action:hover {
+            background: var(--red-primary); color: #000;
+            box-shadow: 0 0 15px var(--red-primary);
+        }
+        .btn-action.btn-purple { color: var(--purple-accent); border-color: var(--purple-accent); }
+        .btn-action.btn-purple:hover {
+            background: var(--purple-accent); color: #fff;
+            box-shadow: 0 0 15px var(--purple-accent);
+        }
+        .card.featured .btn-action { background: var(--red-primary); color: #000; }
+        .card.featured .btn-action:hover {
+            background: #fff; border-color: #fff; box-shadow: 0 0 15px #fff;
+        }
+
+        /* Discount box */
+        .discount-container {
+            background: var(--card-bg); border: 1px solid var(--red-primary);
+            border-radius: 12px; padding: 2.5rem; max-width: 600px;
+            box-shadow: 0 0 25px rgba(255,0,60,0.15); margin-bottom: 2rem;
+        }
+        .search-box { display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .search-input {
+            flex: 1; min-width: 140px; padding: 0.9rem 1.2rem;
+            background: #000; border: 1px solid #333; border-radius: 8px;
+            color: #fff; font-size: 1rem; outline: none;
+        }
+        .search-input:focus {
+            border-color: var(--red-primary);
+            box-shadow: 0 0 10px rgba(255,0,60,0.3);
+        }
+        .search-btn {
+            padding: 0.9rem 1.8rem; background: var(--red-primary); color: #fff;
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; transition: all 0.3s ease;
+        }
+        .search-btn:hover { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
+        .discount-status { margin-top: 1rem; font-weight: bold; min-height: 24px; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px); display: none;
+            justify-content: center; align-items: center; z-index: 10000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-card {
+            background: #0d0d0d; border: 2px solid var(--red-primary);
+            border-radius: 12px; width: 100%; max-width: 480px; padding: 2rem;
+            box-shadow: 0 0 30px rgba(255,0,60,0.4); position: relative;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute; top: 15px; right: 20px;
+            color: #888; font-size: 1.5rem; cursor: pointer;
+        }
+        .modal-close:hover { color: var(--red-primary); }
+        .modal-title { color: #fff; font-size: 1.5rem; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .modal-subtitle { color: var(--red-primary); font-weight: bold; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label {
+            display: block; font-size: 0.85rem; color: #aaa;
+            margin-bottom: 0.4rem; text-transform: uppercase;
+        }
+        .form-control {
+            width: 100%; padding: 0.8rem 1rem; background: #000;
+            border: 1px solid #333; border-radius: 6px; color: #fff;
+            font-size: 0.95rem; outline: none;
+        }
+        .form-control:focus {
+            border-color: var(--red-primary);
+            box-shadow: 0 0 8px rgba(255,0,60,0.4);
+        }
+        .btn-submit {
+            width: 100%; padding: 0.9rem; background: var(--red-primary);
+            color: #fff; border: none; border-radius: 6px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 0 15px rgba(255,0,60,0.4); transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+        .btn-submit:hover { background: #ff335c; box-shadow: 0 0 25px var(--red-primary); }
+
+        /* Admin table */
+        .admin-table {
+            width: 100%; border-collapse: collapse; margin-top: 1rem;
+            background: #0d0d0d; border-radius: 8px; overflow: hidden;
+        }
+        .admin-table th, .admin-table td {
+            padding: 12px; text-align: left; border-bottom: 1px solid #222; font-size: 0.9rem;
+        }
+        .admin-table th { background: #151518; color: #00ff88; }
+        .admin-input-small {
+            padding: 6px 10px; background: #000; border: 1px solid #444;
+            color: #fff; border-radius: 4px; width: 100px;
+        }
+        .admin-save-btn {
+            padding: 5px 12px; font-size: 0.8rem; background: #00ff88;
+            color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+        .admin-save-btn:hover { background: #fff; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            main { margin-left: 0; padding: 1.5rem; }
+            .sidebar-left {
+                position: relative; width: 100%; height: auto;
+                border-right: none; border-bottom: 1px solid rgba(255,0,60,0.2);
+            }
+            .admin-table th, .admin-table td { padding: 8px 6px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome -->
+    <div id="welcome-overlay">
+        <h1 class="welcome-text">WELCOME BACK</h1>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar-left">
+        <h2 class="sidebar-title">Dashboard</h2>
+        <ul class="nav-list">
+            <li><button class="nav-item-btn active" onclick="switchCategory('tweaks', this)">Catégorie Tweaks ⚙️ <span>›</span></button></li>
+            <li><button class="nav-item-btn" onclick="switchCategory('nitro', this)">Catégorie Nitro 🚀 <span>›</span></button></li>
+            <li><button class="nav-item-btn" onclick="switchCategory('fortnite', this)">Catégorie Fortnite 🔴 <span>›</span></button></li>
+            <li><button class="nav-item-btn giveaways-nav-btn" onclick="switchCategory('giveaways', this)">Giveaways 🎁 <span>›</span></button></li>
+            <li><button class="nav-item-btn discount-nav-btn" onclick="switchCategory('discount', this)">Code Promo 🏷️ <span>›</span></button></li>
+            <li>
+                <button class="nav-item-btn" onclick="switchCategory('discord-community', this)"
+                    style="border-color: rgba(168,85,247,0.4); background: linear-gradient(90deg, rgba(168,85,247,0.12) 0%, transparent 100%);">
+                    <span style="display:flex;align-items:center;gap:10px;">
+                        <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#a855f7">
+                            <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.15c2.65-27.28-4.51-51.19-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5.18-12.72,11.45-12.72S53.9,46,53.88,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5.18-12.72,11.44-12.72S96.15,46,96.13,53,91,65.69,84.69,65.69Z"/>
+                        </svg>
+                        Our Discord
+                    </span><span>›</span>
+                </button>
+            </li>
+            <li>
+                <button class="nav-item-btn" onclick="openAdminStore(this)"
+                    style="border-color: rgba(255, 170, 0, 0.5); background: linear-gradient(90deg, rgba(255, 170, 0, 0.15) 0%, transparent 100%);">
+                    Admin Store 🔐 <span>›</span>
+                </button>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main -->
+    <main>
+        <header>
+            <h1 class="brand-title" onclick="handleTitleClicks()">KAYZEN TWEAK</h1>
+        </header>
+
+        <!-- Tweaks -->
+        <section id="tweaks" class="category-view active">
+            <h2 class="section-header">Catégorie Tweaks ⚙️</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div>
+                        <h3>BASIC TWEAKS</h3>
+                        <div class="price" id="item-price-basic" data-base-price="15">15 DT</div>
+                        <ul class="features-list">
+                            <li>Nettoyage complet du système</li>
+                            <li>Optimisation du démarrage</li>
+                            <li>Suppression des spams/temp</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('BASIC TWEAKS', document.getElementById('item-price-basic').innerText)">Commander</button>
+                </div>
+                <div class="card">
+                    <div>
+                        <h3>PRO TWEAKS</h3>
+                        <div class="price" id="item-price-pro" data-base-price="45">45 DT</div>
+                        <ul class="features-list">
+                            <li>Inclus le pack Basic</li>
+                            <li>Optimisation Registre Windows</li>
+                            <li>Réduction forte de l'Input Lag</li>
+                            <li>Désactivation des services inutiles</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('PRO TWEAKS', document.getElementById('item-price-pro').innerText)">Commander</button>
+                </div>
+                <div class="card featured">
+                    <div class="badge-recommended">Recommandé</div>
+                    <div>
+                        <h3>FULL OPTIMIZATION</h3>
+                        <div class="price" id="item-price-full" data-base-price="120">120 DT</div>
+                        <ul class="features-list">
+                            <li>Inclus le pack Pro</li>
+                            <li>Optimisation maximale FPS</li>
+                            <li>Tweaks réseau & Ping ultra-bas</li>
+                            <li>Paramétrage GPU & BIOS expert</li>
+                            <li>Support prioritaire 24/7</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('FULL OPTIMIZATION', document.getElementById('item-price-full').innerText)">Commander</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nitro -->
+        <section id="nitro" class="category-view">
+            <h2 class="section-header">Catégorie Nitro Discord 🚀</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div>
+                        <h3>NITRO 1 MOIS</h3>
+                        <div class="price" id="item-price-nitro1" data-base-price="5">5 DT</div>
+                        <ul class="features-list">
+                            <li>Avantages Nitro complets</li>
+                            <li>Emojis & Autocollants partout</li>
+                            <li>Partage d'écran HD 60fps</li>
+                            <li>Activation immédiate</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('NITRO 1 MOIS', document.getElementById('item-price-nitro1').innerText)">Acheter</button>
+                </div>
+                <div class="card">
+                    <div>
+                        <h3>NITRO 3 MOIS</h3>
+                        <div class="price" id="item-price-nitro3" data-base-price="15">15 DT</div>
+                        <ul class="features-list">
+                            <li>Avantages Nitro 3 Mois</li>
+                            <li>Boosts de serveur inclus</li>
+                            <li>Partage d'écran Ultra HD</li>
+                            <li>Garantie totale 90 jours</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('NITRO 3 MOIS', document.getElementById('item-price-nitro3').innerText)">Acheter</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fortnite -->
+        <section id="fortnite" class="category-view">
+            <h2 class="section-header">Catégorie Fortnite 🔴</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div>
+                        <h3>800 V-BUCKS</h3>
+                        <div class="price" id="item-price-v800" data-base-price="39">39 DT</div>
+                        <ul class="features-list">
+                            <li>Recharge ultra rapide</li>
+                            <li>Livraison 100% sécurisée</li>
+                            <li>Toutes plateformes</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('800 V-BUCKS', document.getElementById('item-price-v800').innerText)">Acheter</button>
+                </div>
+                <div class="card">
+                    <div>
+                        <h3>2400 V-BUCKS</h3>
+                        <div class="price" id="item-price-v2400" data-base-price="72">72 DT</div>
+                        <ul class="features-list">
+                            <li>Offre populaire</li>
+                            <li>Livraison rapide via Discord</li>
+                            <li>100% Légal & Sécurisé</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('2400 V-BUCKS', document.getElementById('item-price-v2400').innerText)">Acheter</button>
+                </div>
+                <div class="card">
+                    <div>
+                        <h3>4500 V-BUCKS</h3>
+                        <div class="price" id="item-price-v4500" data-base-price="100">100 DT</div>
+                        <ul class="features-list">
+                            <li>Rapport quantité/prix optimal</li>
+                            <li>Service garanti</li>
+                            <li>Support dédié</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('4500 V-BUCKS', document.getElementById('item-price-v4500').innerText)">Acheter</button>
+                </div>
+                <div class="card">
+                    <div>
+                        <h3>12 500 V-BUCKS</h3>
+                        <div class="price" id="item-price-v12500" data-base-price="145">145 DT</div>
+                        <ul class="features-list">
+                            <li>Pack Ultra VIP</li>
+                            <li>Livraison Prioritaire</li>
+                            <li>Support dédié 24/7</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('12 500 V-BUCKS', document.getElementById('item-price-v12500').innerText)">Acheter</button>
+                </div>
+                <div class="card">
+                    <div>
+                        <h3>Fortnite Crew</h3>
+                        <div class="price" id="item-price-crew" data-base-price="30">30 DT</div>
+                        <ul class="features-list">
+                            <li>Abonnement Crew</li>
+                            <li>Livraison Prioritaire</li>
+                            <li>Support dédié 24/7</li>
+                        </ul>
+                    </div>
+                    <button class="btn-action" onclick="openPurchaseModal('Fortnite Crew', document.getElementById('item-price-crew').innerText)">Acheter</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Giveaways -->
+        <section id="giveaways" class="category-view">
+            <h2 class="section-header" style="color: var(--purple-accent); text-shadow: 0 0 10px rgba(168,85,247,0.4); border-bottom-color: rgba(168,85,247,0.2);">
+                Giveaways 🎁
+            </h2>
+            <div class="cards-grid">
+                <div class="card giveaway-card">
+                    <div class="badge-giveaway">EN COURS ⚡</div>
+                    <div>
+                        <h3 style="color: var(--purple-accent);">DISCORD NITRO 1 MOIS</h3>
+                        <div class="price" style="color: #00ff88;">GRATUIT</div>
+                        <ul class="features-list">
+                            <li>1 Gagnant tiré au sort</li>
+                            <li>Participation via Discord</li>
+                            <li>Tirage dans le salon #giveaway</li>
+                        </ul>
+                    </div>
+                    <a href="https://discord.gg/NEErfExwHW" target="_blank" class="btn-action btn-purple">Participer sur Discord</a>
+                </div>
+                <div class="card giveaway-card">
+                    <div class="badge-giveaway">EN COURS ⚡</div>
+                    <div>
+                        <h3 style="color: var(--purple-accent);">PACK BASIC TWEAK</h3>
+                        <div class="price" style="color: #00ff88;">GRATUIT</div>
+                        <ul class="features-list">
+                            <li>Boost de performance offert</li>
+                            <li>Rejoignez la communauté</li>
+                            <li>Résultat hebdomadaire</li>
+                        </ul>
+                    </div>
+                    <a href="https://discord.gg/NEErfExwHW" target="_blank" class="btn-action btn-purple">Participer sur Discord</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promo -->
+        <section id="discount" class="category-view">
+            <h2 class="section-header">Code Promo 🏷️</h2>
+            <div class="discount-container">
+                <h3>Appliquer un code de réduction</h3>
+                <p style="color: #aaa; margin-top: 0.5rem; font-size: 0.95rem;">
+                    Entrez votre code ci-dessous pour bénéficier d'une remise exclusive.
+                </p>
+                <div class="search-box">
+                    <input type="text" id="discount-input" class="search-input" placeholder="Entrez votre code promo...">
+                    <button onclick="applyDiscount()" class="search-btn">Appliquer</button>
+                </div>
+                <div id="discount-status" class="discount-status"></div>
+            </div>
+        </section>
+
+        <!-- Admin Panel -->
+        <section id="admin-panel" class="category-view">
+            <h2 class="section-header" style="color: #00ff88; border-bottom-color: rgba(0,255,136,0.2);">
+                Admin Store 🔐
+            </h2>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+                <p style="color:#777;font-size:0.9rem;margin:0;">
+                    Connecté : <strong id="admin-logged-user" style="color:#00ff88;">—</strong> ·
+                    Rôle : <strong id="admin-logged-role" style="color:#ffaa00;">—</strong>
+                </p>
+                <button onclick="adminLogout()" class="btn-action"
+                    style="width:auto;padding:0.5rem 1.2rem;border-color:#ffaa00;color:#ffaa00;">
+                    Déconnexion
+                </button>
+            </div>
+
+            <!-- Prices -->
+            <div id="admin-section-prices" class="discount-container" style="border-color: #00ff88; max-width: 100%;">
+                <h3 style="color: #00ff88;">Modifier les Prix des Produits</h3>
+                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 1rem;">Tous les produits — Tweaks, Nitro, Fortnite :</p>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Produit</th>
+                            <th>Prix actuel</th>
+                            <th>Nouveau prix</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tweaks</td><td>Basic Tweaks</td>
+                            <td id="admin-current-basic">15</td>
+                            <td><input type="number" id="input-price-basic" class="admin-input-small" value="15" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-basic','input-price-basic','admin-current-basic')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Tweaks</td><td>Pro Tweaks</td>
+                            <td id="admin-current-pro">45</td>
+                            <td><input type="number" id="input-price-pro" class="admin-input-small" value="45" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-pro','input-price-pro','admin-current-pro')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Tweaks</td><td>Full Optimization</td>
+                            <td id="admin-current-full">120</td>
+                            <td><input type="number" id="input-price-full" class="admin-input-small" value="120" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-full','input-price-full','admin-current-full')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Nitro</td><td>Nitro 1 Mois</td>
+                            <td id="admin-current-nitro1">5</td>
+                            <td><input type="number" id="input-price-nitro1" class="admin-input-small" value="5" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-nitro1','input-price-nitro1','admin-current-nitro1')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Nitro</td><td>Nitro 3 Mois</td>
+                            <td id="admin-current-nitro3">15</td>
+                            <td><input type="number" id="input-price-nitro3" class="admin-input-small" value="15" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-nitro3','input-price-nitro3','admin-current-nitro3')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Fortnite</td><td>800 V-Bucks</td>
+                            <td id="admin-current-v800">39</td>
+                            <td><input type="number" id="input-price-v800" class="admin-input-small" value="39" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-v800','input-price-v800','admin-current-v800')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Fortnite</td><td>2400 V-Bucks</td>
+                            <td id="admin-current-v2400">72</td>
+                            <td><input type="number" id="input-price-v2400" class="admin-input-small" value="72" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-v2400','input-price-v2400','admin-current-v2400')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Fortnite</td><td>4500 V-Bucks</td>
+                            <td id="admin-current-v4500">100</td>
+                            <td><input type="number" id="input-price-v4500" class="admin-input-small" value="100" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-v4500','input-price-v4500','admin-current-v4500')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Fortnite</td><td>12 500 V-Bucks</td>
+                            <td id="admin-current-v12500">145</td>
+                            <td><input type="number" id="input-price-v12500" class="admin-input-small" value="145" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-v12500','input-price-v12500','admin-current-v12500')">Sauvegarder</button></td>
+                        </tr>
+                        <tr>
+                            <td>Fortnite</td><td>Fortnite Crew</td>
+                            <td id="admin-current-crew">30</td>
+                            <td><input type="number" id="input-price-crew" class="admin-input-small" value="30" min="1"></td>
+                            <td><button class="admin-save-btn" onclick="updatePrice('item-price-crew','input-price-crew','admin-current-crew')">Sauvegarder</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p id="admin-price-status" style="margin-top:12px;font-weight:bold;min-height:20px;"></p>
+            </div>
+
+            <!-- Promo codes -->
+            <div id="admin-section-promo" class="discount-container" style="border-color: #00ff88; max-width: 100%;">
+                <h3 style="color: #00ff88;">Ajouter un Code Promo</h3>
+                <p style="color:#666;font-size:0.85rem;">Accessible aux rôles : Owner, Admin</p>
+                <div class="search-box">
+                    <input type="text" id="new-promo-code" class="search-input" placeholder="Ex: KAYZEN20">
+                    <input type="number" id="new-promo-percent" class="admin-input-small" style="width:120px;" value="10" min="1" max="90">
+                    <button onclick="addPromoCode()" class="search-btn" style="background:#00ff88;color:#000;">Créer Code</button>
+                </div>
+                <div id="admin-promo-status" style="margin-top:10px;color:#00ff88;font-weight:bold;"></div>
+                <div id="admin-promo-list" style="margin-top:1rem;color:#aaa;font-size:0.9rem;"></div>
+            </div>
+
+            <!-- Users management -->
+            <div id="admin-section-users" class="discount-container" style="border-color: #ffaa00; max-width: 100%;">
+                <h3 style="color: #ffaa00;">Gestion des accès (Owner only)</h3>
+                <p style="color:#888;font-size:0.85rem;margin-bottom:1rem;">
+                    Niveaux :
+                    <strong style="color:#00ff88;">Owner</strong> (tout) ·
+                    <strong style="color:#ffaa00;">Admin</strong> (prix + promo) ·
+                    <strong style="color:#a855f7;">Moderator</strong> (prix seulement)
+                </p>
+                <div class="search-box">
+                    <input type="text" id="new-admin-user" class="search-input" placeholder="Username...">
+                    <input type="password" id="new-admin-pass" class="search-input" placeholder="Password...">
+                    <select id="new-admin-role" class="search-input" style="max-width:140px;background:#000;color:#fff;border:1px solid #333;">
+                        <option value="admin">Admin</option>
+                        <option value="moderator">Moderator</option>
+                    </select>
+                    <button onclick="addAdminUser()" class="search-btn" style="background:#ffaa00;color:#000;">Ajouter</button>
+                </div>
+                <div id="add-admin-status" style="margin-top:10px;font-weight:bold;min-height:20px;"></div>
+                <div id="admins-access-list" style="margin-top:1rem;color:#ccc;font-size:0.9rem;"></div>
+            </div>
+        </section>
+
+        <!-- Discord Community -->
+        <section id="discord-community" class="category-view">
+            <div class="discount-container" style="border-color:#a855f7;box-shadow:0 0 25px rgba(168,85,247,0.18);">
+                <h3 style="color:#ff003c;font-size:1.5rem;margin-bottom:0.8rem;">Discord Community Giveaways</h3>
+                <p style="color:#aaa;font-size:0.95rem;line-height:1.5;margin-bottom:1.8rem;">
+                    Join our official server for free utilities and weekly giveaways.
+                </p>
+                <a href="https://discord.gg/NEErfExwHW" target="_blank" class="search-btn"
+                   style="display:block;text-align:center;text-decoration:none;background:linear-gradient(135deg,#ff003c 0%,#a855f7 100%);border:none;width:100%;">
+                    Join Discord Community
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Purchase Modal -->
+    <div id="purchase-modal" class="modal-overlay">
+        <div class="modal-card">
+            <span class="modal-close" onclick="closePurchaseModal()">×</span>
+            <h3 class="modal-title">Finaliser la commande</h3>
+            <div id="modal-product-name" class="modal-subtitle">Produit</div>
+            <form id="checkout-form" onsubmit="submitOrder(event)">
+                <div class="form-group">
+                    <label for="discord-user">Discord Username</label>
+                    <input type="text" id="discord-user" class="form-control" placeholder="ex: pseudo" required>
+                </div>
+                <div class="form-group">
+                    <label for="irl-name">IRL Name</label>
+                    <input type="text" id="irl-name" class="form-control" placeholder="Nom & prénom" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Payment Method</label>
+                    <select id="payment-method" class="form-control" required>
+                        <option value="" disabled selected>Choisissez</option>
+                        <option value="Ooredoo">Ooredoo</option>
+                        <option value="Tunisie Telecom">Tunisie Telecom</option>
+                        <option value="D17">D17</option>
+                    </select>
+                </div>
+                <button type="submit" id="btn-submit-order" class="btn-submit">Envoyer la commande</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ IMPORTANT: Move the webhook to a backend in production
+        const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1550860823734394980/RjgiDwx4mPWCb4t_e0QoJ-hOT0o1J_ss4P5F53UtuCZpmsJg9dITErtQ5SWtZLhIgIEW";
+
+        let selectedProduct = "", selectedPrice = "";
+        let customPromoCodes = JSON.parse(localStorage.getItem('kayzen_promo_codes') || 'null') || { 'kayzen tn': 10 };
+
+        const DEFAULT_ADMIN_USERS = [
+            { user: 'kayzen', pass: 'kayzen store 123', role: 'owner' }
+        ];
+        let adminUsers = JSON.parse(localStorage.getItem('kayzen_admin_users') || 'null') || DEFAULT_ADMIN_USERS;
+        let currentAdmin = null;
+
+        const ROLE_PERMS = {
+            owner:     { prices: true, promo: true, users: true },
+            admin:     { prices: true, promo: true, users: false },
+            moderator: { prices: true, promo: false, users: false }
+        };
+
+        function loadSavedPrices() {
+            const saved = JSON.parse(localStorage.getItem('kayzen_prices') || '{}');
+            Object.keys(saved).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.setAttribute('data-base-price', saved[id]);
+                    el.innerText = saved[id] + " DT";
+                }
+                const key = id.replace('item-price-', '');
+                const adminTd = document.getElementById('admin-current-' + key);
+                if (adminTd) adminTd.innerText = saved[id];
+                const input = document.getElementById('input-price-' + key);
+                if (input) input.value = saved[id];
+            });
+        }
+
+        let titleClickCount = 0, titleClickTimer = null;
+        function handleTitleClicks() {
+            titleClickCount++;
+            clearTimeout(titleClickTimer);
+            if (titleClickCount === 3) {
+                titleClickCount = 0;
+                openAdminStore(null);
+            } else {
+                titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 1000);
+            }
+        }
+
+        function openAdminStore(btnElement) {
+            const username = prompt("Admin username :");
+            if (username === null) return;
+            const password = prompt("Mot de passe Admin :");
+            if (password === null) return;
+
+            const found = adminUsers.find(a =>
+                a.user.toLowerCase() === username.trim().toLowerCase() && a.pass === password
+            );
+            if (!found) {
+                alert("Identifiants incorrects ! Accès refusé.");
+                return;
+            }
+
+            currentAdmin = { user: found.user, role: found.role };
+            switchCategory('admin-panel', btnElement || null);
+            applyRoleUI();
+            renderPromoList();
+            renderAdminsList();
+            loadSavedPrices();
+        }
+
+        function adminLogout() {
+            currentAdmin = null;
+            switchCategory('tweaks', document.querySelector('.nav-item-btn'));
+            alert("Déconnecté de Admin Store.");
+        }
+
+        function applyRoleUI() {
+            if (!currentAdmin) return;
+            const perms = ROLE_PERMS[currentAdmin.role] || ROLE_PERMS.moderator;
+            document.getElementById('admin-logged-user').innerText = currentAdmin.user;
+            document.getElementById('admin-logged-role').innerText = currentAdmin.role.toUpperCase();
+
+            document.getElementById('admin-section-prices').style.display = perms.prices ? 'block' : 'none';
+            document.getElementById('admin-section-promo').style.display  = perms.promo  ? 'block' : 'none';
+            document.getElementById('admin-section-users').style.display  = perms.users  ? 'block' : 'none';
+        }
+
+        function updatePrice(targetPriceId, inputSourceId, adminCurrentTdId) {
+            if (!currentAdmin || !ROLE_PERMS[currentAdmin.role].prices) {
+                alert("Permission refusée.");
+                return;
+            }
+            const newPriceVal = document.getElementById(inputSourceId).value;
+            if (!newPriceVal || newPriceVal <= 0) {
+                alert("Prix invalide !");
+                return;
+            }
+            const targetElement = document.getElementById(targetPriceId);
+            targetElement.setAttribute('data-base-price', newPriceVal);
+            targetElement.innerText = newPriceVal + " DT";
+            document.getElementById(adminCurrentTdId).innerText = newPriceVal;
+
+            const saved = JSON.parse(localStorage.getItem('kayzen_prices') || '{}');
+            saved[targetPriceId] = newPriceVal;
+            localStorage.setItem('kayzen_prices', JSON.stringify(saved));
+
+            const status = document.getElementById('admin-price-status');
+            status.style.color = '#00ff88';
+            status.innerText = "Prix mis à jour → " + newPriceVal + " DT";
+        }
+
+        function addPromoCode() {
+            if (!currentAdmin || !ROLE_PERMS[currentAdmin.role].promo) {
+                alert("Permission refusée (Owner/Admin uniquement).");
+                return;
+            }
+            const code = document.getElementById('new-promo-code').value.trim().toLowerCase();
+            const percent = parseFloat(document.getElementById('new-promo-percent').value);
+            if (code && percent >= 1 && percent <= 90) {
+                customPromoCodes[code] = percent;
+                localStorage.setItem('kayzen_promo_codes', JSON.stringify(customPromoCodes));
+                document.getElementById('admin-promo-status').innerText = `Code '${code}' (-${percent}%) créé !`;
+                document.getElementById('new-promo-code').value = '';
+                renderPromoList();
+            } else {
+                alert("Code + % (1-90) obligatoires.");
+            }
+        }
+
+        function renderPromoList() {
+            const list = document.getElementById('admin-promo-list');
+            if (!list) return;
+            const keys = Object.keys(customPromoCodes);
+            list.innerHTML = keys.length
+                ? '<strong style="color:#00ff88;">Codes actifs :</strong><br>' +
+                  keys.map(c => `• <code style="color:#fff;">${c}</code> → -${customPromoCodes[c]}%`).join('<br>')
+                : '';
+        }
+
+        function addAdminUser() {
+            if (!currentAdmin || currentAdmin.role !== 'owner') {
+                alert("Owner uniquement.");
+                return;
+            }
+            const user = document.getElementById('new-admin-user').value.trim();
+            const pass = document.getElementById('new-admin-pass').value;
+            const role = document.getElementById('new-admin-role').value;
+            const status = document.getElementById('add-admin-status');
+
+            if (!user || !pass) {
+                status.style.color = '#ff4444';
+                status.innerText = "Username et password obligatoires.";
+                return;
+            }
+            if (adminUsers.some(a => a.user.toLowerCase() === user.toLowerCase())) {
+                status.style.color = '#ff4444';
+                status.innerText = "Ce username existe déjà.";
+                return;
+            }
+
+            adminUsers.push({ user, pass, role });
+            localStorage.setItem('kayzen_admin_users', JSON.stringify(adminUsers));
+            document.getElementById('new-admin-user').value = '';
+            document.getElementById('new-admin-pass').value = '';
+            status.style.color = '#00ff88';
+            status.innerText = `Compte '${user}' (${role}) ajouté.`;
+            renderAdminsList();
+        }
+
+        function removeAdminUser(index) {
+            if (!currentAdmin || currentAdmin.role !== 'owner') return;
+            if (index === 0 || adminUsers[index].role === 'owner') {
+                alert("Impossible de supprimer le Owner principal.");
+                return;
+            }
+            const removed = adminUsers.splice(index, 1)[0];
+            localStorage.setItem('kayzen_admin_users', JSON.stringify(adminUsers));
+            document.getElementById('add-admin-status').style.color = '#00ff88';
+            document.getElementById('add-admin-status').innerText = `'${removed.user}' supprimé.`;
+            renderAdminsList();
+        }
+
+        function renderAdminsList() {
+            const list = document.getElementById('admins-access-list');
+            if (!list) return;
+            const roleColor = { owner: '#00ff88', admin: '#ffaa00', moderator: '#a855f7' };
+            list.innerHTML = adminUsers.map((a, i) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.08);padding:0.6rem 0;">
+                    <span><strong style="color:#fff;">${a.user}</strong> · <span style="color:${roleColor[a.role]||'#aaa'}">${a.role}</span></span>
+                    ${i > 0 && a.role !== 'owner'
+                        ? `<button onclick="removeAdminUser(${i})" style="background:transparent;border:1px solid #ff003c;color:#ff003c;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:0.8rem;">Supprimer</button>`
+                        : '<span style="color:#555;font-size:0.8rem;">Protégé</span>'}
+                </div>
+            `).join('');
+        }
+
+        function switchCategory(categoryId, btnElement) {
+            document.querySelectorAll('.category-view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(categoryId).classList.add('active');
+            if (btnElement) btnElement.classList.add('active');
+        }
+
+        function applyDiscount() {
+            const input = document.getElementById('discount-input').value.trim().toLowerCase();
+            const status = document.getElementById('discount-status');
+            if (customPromoCodes[input]) {
+                const percentage = customPromoCodes[input];
+                status.style.color = '#00ff88';
+                status.innerText = `Code '${input}' appliqué (-${percentage}%) !`;
+                document.querySelectorAll('.price[data-base-price]').forEach(priceEl => {
+                    const base = parseFloat(priceEl.getAttribute('data-base-price'));
+                    if (base) {
+                        const np = (base * (1 - percentage / 100)).toFixed(1);
+                        priceEl.innerHTML = `<span class="old-price">${base} DT</span> <span class="price-discounted">${np} DT</span>`;
+                    }
+                });
+            } else {
+                status.style.color = '#ff4444';
+                status.innerText = "Code promo invalide.";
+            }
+        }
+
+        function openPurchaseModal(productName, price) {
+            selectedProduct = productName;
+            selectedPrice = price;
+            document.getElementById('modal-product-name').innerText = productName + " - " + price;
+            document.getElementById('purchase-modal').classList.add('active');
+        }
+
+        function closePurchaseModal() {
+            document.getElementById('purchase-modal').classList.remove('active');
+            document.getElementById('checkout-form').reset();
+        }
+
+        function submitOrder(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('btn-submit-order');
+            submitBtn.innerText = "Envoi...";
+            submitBtn.disabled = true;
+
+            const orderData = {
+                product: selectedProduct,
+                price: selectedPrice,
+                payment: document.getElementById('payment-method').value,
+                discord: document.getElementById('discord-user').value,
+                name: document.getElementById('irl-name').value,
+                email: document.getElementById('email').value
+            };
+
+            const embed = {
+                title: "🛒 Nouvelle commande — KAYZEN TWEAK",
+                color: 0xff003c,
+                fields: [
+                    { name: "Produit", value: orderData.product, inline: true },
+                    { name: "Prix", value: orderData.price, inline: true },
+                    { name: "Paiement", value: orderData.payment, inline: true },
+                    { name: "Discord", value: orderData.discord, inline: true },
+                    { name: "Nom IRL", value: orderData.name, inline: true },
+                    { name: "Email", value: orderData.email, inline: true }
+                ],
+                timestamp: new Date().toISOString(),
+                footer: { text: "KAYZEN TWEAK Store" }
+            };
+
+            fetch(WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ embeds: [embed] })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Webhook error " + res.status);
+                alert("Commande envoyée avec succès !");
+                closePurchaseModal();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erreur lors de l'envoi. Réessaie ou contacte le support Discord.");
+            })
+            .finally(() => {
+                submitBtn.innerText = "Envoyer la commande";
+                submitBtn.disabled = false;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSavedPrices);
+    </script>
+</body>
+</html>
